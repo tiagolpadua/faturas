@@ -43,113 +43,108 @@ showNotImplementedDialog(BuildContext context) {
 class Faturas extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Sistema de Faturas',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Sistema de Faturas'),
-        ),
-        body: Container(
-          // color: Color(0xFFE7004C),
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Card(
-              elevation: 10,
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 10, 0, 30),
-                        child: Text("Última fatura",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 20)),
-                      ),
-                      Row(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("R\$ 3.025,49",
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Sistema de Faturas'),
+      ),
+      body: Container(
+        // color: Color(0xFFE7004C),
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Card(
+            elevation: 10,
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 30),
+                      child: Text("Última fatura",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20)),
+                    ),
+                    Row(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("R\$ 3.025,49",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 20)),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 5, bottom: 8),
+                              child: Text("Vencimento 08/07/2019",
                                   style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20)),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 5, bottom: 8),
-                                child: Text("Vencimento 08/07/2019",
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.black.withOpacity(0.6))),
-                              ),
-                            ],
-                          ),
-                          Spacer(),
-                          Text("Vencida",
-                              style: TextStyle(fontSize: 18, color: Colors.red))
-                        ],
-                      ),
-                      Divider(color: Colors.black),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8, bottom: 8),
-                        child: Text("Formas de Pagamento",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 18)),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8, bottom: 8),
-                        child: Text("Boleto Bancário",
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.black.withOpacity(0.6))),
-                      ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton(
-                          child: Padding(
-                            padding: const EdgeInsets.all(15.0),
-                            child: Text('Copiar código de barras do boleto'),
-                          ),
-                          onPressed: () {
-                            showNotImplementedDialog(context);
-                          },
+                                      fontSize: 18,
+                                      color: Colors.black.withOpacity(0.6))),
+                            ),
+                          ],
                         ),
-                      ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton(
-                          child: Padding(
-                            padding: const EdgeInsets.all(15.0),
-                            child: Text('Enviar boleto por e-mail'),
-                          ),
-                          onPressed: () {
-                            showNotImplementedDialog(context);
-                          },
+                        Spacer(),
+                        Text("Vencida",
+                            style: TextStyle(fontSize: 18, color: Colors.red))
+                      ],
+                    ),
+                    Divider(color: Colors.black),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8, bottom: 8),
+                      child: Text("Formas de Pagamento",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8, bottom: 8),
+                      child: Text("Boleto Bancário",
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.black.withOpacity(0.6))),
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Text('Copiar código de barras do boleto'),
                         ),
+                        onPressed: () {
+                          showNotImplementedDialog(context);
+                        },
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10, bottom: 5),
-                        child: Text("Cartão de Crédito",
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.black.withOpacity(0.6))),
-                      ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton(
-                          child: Padding(
-                            padding: const EdgeInsets.all(15.0),
-                            child: Text('Pagar com cartão de crédito'),
-                          ),
-                          onPressed: () {
-                            debugPrint('foo');
-                            // showAlertDialog(context);
-                          },
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Text('Enviar boleto por e-mail'),
                         ),
+                        onPressed: () {
+                          showNotImplementedDialog(context);
+                        },
                       ),
-                    ]),
-              ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10, bottom: 5),
+                      child: Text("Cartão de Crédito",
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.black.withOpacity(0.6))),
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Text('Pagar com cartão de crédito'),
+                        ),
+                        onPressed: () {
+                          debugPrint('foo');
+                          // showAlertDialog(context);
+                        },
+                      ),
+                    ),
+                  ]),
             ),
           ),
         ),
