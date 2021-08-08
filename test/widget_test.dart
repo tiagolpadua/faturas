@@ -11,6 +11,6 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('Página inicial', (WidgetTester tester) async {
     await tester.pumpWidget(Faturas());
-    expect(find.text('Olá Mundo!'), findsOneWidget);
+    expect(find.text('Última fatura'), findsOneWidget);
   });
 }
