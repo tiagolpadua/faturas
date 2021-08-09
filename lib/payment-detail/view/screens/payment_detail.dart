@@ -1,30 +1,18 @@
-import 'package:faturas/selecao-parcelas/model/Parcela.dart';
+import 'package:faturas/payment-detail/model/payment_detail_model.dart';
+import 'package:faturas/payment-detail/view_model/payment_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 var nf = NumberFormat.simpleCurrency(locale: 'pt_BR');
 
-class SelecaoParcelasScreen extends StatefulWidget {
-  final double _valorFatura = 3025.49;
-  int _qtdSelecionado = -1;
-
-  final List<Parcela> _parcelas = [
-    Parcela(1, 3180, 3180),
-    Parcela(2, 1630, 3260),
-    Parcela(3, 1086.67, 3260),
-    Parcela(4, 815, 3260),
-    Parcela(5, 662, 3310),
-    Parcela(6, 551.67, 3310),
-    Parcela(7, 472.86, 3310),
-  ];
-
-  final double _taxaOperacao = 154.51;
+class PaymentDetailScreen extends StatefulWidget {
+  PaymentDetailViewModel paymentDetailViewModel = PaymentDetailViewModel();
 
   @override
-  _SelecaoParcelasScreenState createState() => _SelecaoParcelasScreenState();
+  _PaymentDetailScreenState createState() => _PaymentDetailScreenState();
 }
 
-class _SelecaoParcelasScreenState extends State<SelecaoParcelasScreen> {
+class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,13 +31,16 @@ class _SelecaoParcelasScreenState extends State<SelecaoParcelasScreen> {
                           fontWeight: FontWeight.bold, fontSize: 16))),
               Expanded(
                 child: ListView.builder(
-                    itemCount: widget._parcelas.length,
+                    itemCount:
+                        widget.paymentDetailViewModel.paymentOptions.length,
                     itemBuilder: (context, indice) {
-                      final transferencia = widget._parcelas[indice];
-                      return ItemParcela(transferencia, (value) {
+                      final parcela =
+                          widget.paymentDetailViewModel.paymentOptions[indice];
+                      return PaymentDetailTile(parcela,
+                          widget.paymentDetailViewModel.paymentSelected,
+                          (value) {
                         setState(() {
-                          debugPrint(widget._qtdSelecionado.toString());
-                          widget._qtdSelecionado = value;
+                          widget.paymentDetailViewModel.paymentSelected = value;
                         });
                       });
                     }),
@@ -68,7 +59,8 @@ class _SelecaoParcelasScreenState extends State<SelecaoParcelasScreen> {
                                 style: TextStyle(
                                     color: Colors.grey, fontSize: 16)),
                             Spacer(),
-                            Text("${nf.format(widget._valorFatura)}",
+                            Text(
+                                "${nf.format(widget.paymentDetailViewModel.invoiceValue)}",
                                 style: TextStyle(
                                     color: Colors.grey, fontSize: 16)),
                           ],
@@ -82,7 +74,9 @@ class _SelecaoParcelasScreenState extends State<SelecaoParcelasScreen> {
                                 style: TextStyle(
                                     color: Colors.grey, fontSize: 16)),
                             Spacer(),
-                            Text("${nf.format(widget._taxaOperacao)}",
+                            Text(
+                                "${nf.format((widget.paymentDetailViewModel.paymentSelected.number * widget.paymentDetailViewModel.paymentSelected.value) - widget.paymentDetailViewModel.invoiceValue)}",
+                                key: Key("tax"),
                                 style: TextStyle(
                                     color: Colors.grey, fontSize: 16)),
                           ],
@@ -115,35 +109,32 @@ class _SelecaoParcelasScreenState extends State<SelecaoParcelasScreen> {
   }
 }
 
-class ItemParcela extends StatelessWidget {
-  final Parcela _parcela;
-  final Function(int) _onChangedFunction;
+class PaymentDetailTile extends StatelessWidget {
+  final PaymentDetailModel _payment;
+  final Function(PaymentDetailModel) _onChangedFunction;
+  final PaymentDetailModel _selectedPayment;
 
-  ItemParcela(this._parcela, this._onChangedFunction);
+  PaymentDetailTile(
+      this._payment, this._selectedPayment, this._onChangedFunction);
 
   @override
   Widget build(BuildContext context) {
-    int val = -1;
-    String qtd = _parcela.qtd.toString();
+    var key = Key('rlt_${_payment.number}');
+
     return Card(
-      child: ListTile(
-        // leading: Icon(Icons.monetization_on),
-        leading: Radio(
-          groupValue: val,
-          value: _parcela.qtd,
-          onChanged: (int? x) {
-            _onChangedFunction(x = 0);
-          },
-        ),
-        title: Row(
-          children: [
-            // Text('$qtd x R\$ $valorParcela'),
-            Text('$qtd x ${nf.format(_parcela.valorParcela)}'),
-            Spacer(),
-            Text('${nf.format(_parcela.valorTotal)}')
-          ],
-        ),
+        child: RadioListTile<PaymentDetailModel>(
+      title: Row(
+        children: [
+          Text('${_payment.number} x ${nf.format(_payment.value)}', key: key),
+          Spacer(),
+          Text('${nf.format(_payment.totalValue)}'),
+        ],
       ),
-    );
+      value: _payment,
+      groupValue: _selectedPayment,
+      onChanged: (PaymentDetailModel? value) {
+        _onChangedFunction(value!);
+      },
+    ));
   }
 }

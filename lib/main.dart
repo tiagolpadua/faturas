@@ -1,4 +1,4 @@
-import 'package:faturas/selecao-parcelas/view/screens/screen_selecao_parcelas.dart';
+import 'package:faturas/payment-detail/view/screens/payment_detail.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -142,9 +142,8 @@ class Faturas extends StatelessWidget {
                         onPressed: () {
                           Navigator.push(context,
                               MaterialPageRoute(builder: (context) {
-                            return SelecaoParcelasScreen();
+                            return PaymentDetailScreen();
                           }));
-                          // showAlertDialog(context);
                         },
                       ),
                     ),
