@@ -1,3 +1,4 @@
+import 'package:faturas/selecao-parcelas/view/screens/screen_selecao_parcelas.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -139,7 +140,10 @@ class Faturas extends StatelessWidget {
                           child: Text('Pagar com cartão de crédito'),
                         ),
                         onPressed: () {
-                          debugPrint('foo');
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return SelecaoParcelasScreen();
+                          }));
                           // showAlertDialog(context);
                         },
                       ),

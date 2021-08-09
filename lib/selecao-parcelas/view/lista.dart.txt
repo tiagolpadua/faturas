@@ -1,0 +1,53 @@
+import 'package:faturas/selecao-parcelas/models/Parcela.dart';
+import 'package:flutter/material.dart';
+
+const _tituloAppBar = 'Parcelas';
+
+class SelecaoParcelas extends StatefulWidget {
+  final List<Parcela> _parcelas = [];
+
+  @override
+  State createState() {
+    return SelecaoParcelasState();
+  }
+}
+
+class SelecaoParcelasState extends State<SelecaoParcelas> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_tituloAppBar),
+      ),
+      body: ListView.builder(
+          itemCount: widget._parcelas.length,
+          itemBuilder: (context, indice) {
+            final transferencia = widget._parcelas[indice];
+            return ItemParcela(transferencia);
+          }),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          debugPrint('Ok');
+        },
+      ),
+    );
+  }
+}
+
+class ItemParcela extends StatelessWidget {
+  final Parcela _parcela;
+
+  ItemParcela(this._parcela);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        leading: Icon(Icons.monetization_on),
+        title: Text(_parcela.valor.toString()),
+        subtitle: Text(_parcela.valor.toString()),
+      ),
+    );
+  }
+}
