@@ -1,26 +1,33 @@
-import 'package:faturas/payment-detail/model/payment_detail_model.dart';
-import 'package:faturas/payment-detail/view_model/payment_detail.dart';
+import 'package:faturas/model/installment.dart';
+import 'package:faturas/payment-detail/view_model/payment_options.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 var nf = NumberFormat.simpleCurrency(locale: 'pt_BR');
 
-class PaymentDetailScreen extends StatefulWidget {
-  PaymentDetailViewModel paymentDetailViewModel = PaymentDetailViewModel();
-
+class PaymentOptionsScreen extends StatefulWidget {
   @override
-  _PaymentDetailScreenState createState() => _PaymentDetailScreenState();
+  _PaymentOptionsScreenState createState() => _PaymentOptionsScreenState();
 }
 
-class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
+class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
   @override
   Widget build(BuildContext context) {
+    final installmentOptions = context.select(
+      (PaymentOptionsViewModel model) => model.installmentOptions,
+    );
+
+    final invoiceValue = context.select(
+      (PaymentOptionsViewModel model) => model.invoiceValue,
+    );
+
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Pagamento da fatura'),
-        ),
-        body: Container(
-            child: Padding(
+      appBar: AppBar(
+        title: const Text('Pagamento da fatura'),
+      ),
+      body: Container(
+        child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Column(
             children: [
@@ -31,18 +38,10 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
                           fontWeight: FontWeight.bold, fontSize: 16))),
               Expanded(
                 child: ListView.builder(
-                    itemCount:
-                        widget.paymentDetailViewModel.paymentOptions.length,
+                    itemCount: installmentOptions.length,
                     itemBuilder: (context, indice) {
-                      final parcela =
-                          widget.paymentDetailViewModel.paymentOptions[indice];
-                      return PaymentDetailTile(parcela,
-                          widget.paymentDetailViewModel.paymentSelected,
-                          (value) {
-                        setState(() {
-                          widget.paymentDetailViewModel.paymentSelected = value;
-                        });
-                      });
+                      final parcela = installmentOptions[indice];
+                      return PaymentDetailTile(parcela);
                     }),
               ),
               Divider(),
@@ -59,8 +58,7 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
                                 style: TextStyle(
                                     color: Colors.grey, fontSize: 16)),
                             Spacer(),
-                            Text(
-                                "${nf.format(widget.paymentDetailViewModel.invoiceValue)}",
+                            Text("${nf.format(invoiceValue)}",
                                 style: TextStyle(
                                     color: Colors.grey, fontSize: 16)),
                           ],
@@ -74,11 +72,26 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
                                 style: TextStyle(
                                     color: Colors.grey, fontSize: 16)),
                             Spacer(),
-                            Text(
-                                "${nf.format((widget.paymentDetailViewModel.paymentSelected.number * widget.paymentDetailViewModel.paymentSelected.value) - widget.paymentDetailViewModel.invoiceValue)}",
-                                key: Key("tax"),
-                                style: TextStyle(
-                                    color: Colors.grey, fontSize: 16)),
+                            Consumer<PaymentOptionsViewModel>(
+                              builder: (_, paymentDetailViewModel, __) {
+                                var text = '';
+                                var selectedInstallment =
+                                    paymentDetailViewModel.selectedInstallment;
+
+                                if (selectedInstallment != null) {
+                                  text = nf.format((selectedInstallment.number *
+                                          selectedInstallment.value) -
+                                      invoiceValue);
+                                }
+
+                                return Text(
+                                  text,
+                                  key: Key("tax"),
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 16),
+                                );
+                              },
+                            ),
                           ],
                         ),
                       )
@@ -105,35 +118,37 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
               )
             ],
           ),
-        )));
+        ),
+      ),
+    );
   }
 }
 
 class PaymentDetailTile extends StatelessWidget {
-  final PaymentDetailModel _payment;
-  final Function(PaymentDetailModel) _onChangedFunction;
-  final PaymentDetailModel _selectedPayment;
+  final Installment _payment;
 
-  PaymentDetailTile(
-      this._payment, this._selectedPayment, this._onChangedFunction);
+  PaymentDetailTile(this._payment);
 
   @override
   Widget build(BuildContext context) {
     var key = Key('rlt_${_payment.number}');
 
+    final paymentDetailViewModel =
+        Provider.of<PaymentOptionsViewModel>(context);
+
     return Card(
-        child: RadioListTile<PaymentDetailModel>(
+        child: RadioListTile<Installment>(
       title: Row(
         children: [
           Text('${_payment.number} x ${nf.format(_payment.value)}', key: key),
           Spacer(),
-          Text('${nf.format(_payment.totalValue)}'),
+          Text('${nf.format(_payment.total)}'),
         ],
       ),
       value: _payment,
-      groupValue: _selectedPayment,
-      onChanged: (PaymentDetailModel? value) {
-        _onChangedFunction(value!);
+      groupValue: paymentDetailViewModel.selectedInstallment,
+      onChanged: (Installment? value) {
+        paymentDetailViewModel.selectedInstallment = value;
       },
     ));
   }
