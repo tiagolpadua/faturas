@@ -1,7 +1,7 @@
-import 'package:faturas/payment-detail/model/installment_options_model.dart';
-import 'package:faturas/payment-detail/view/screens/payment_options.dart';
-import 'package:faturas/payment-detail/view_model/payment_options.dart';
-import 'package:faturas/shared/model/installment_model.dart';
+import 'package:faturas/payment-options/model/payment_options_model.dart';
+import 'package:faturas/payment-options/view/screens/payment_options.dart';
+import 'package:faturas/payment-options/view_model/payment_options.dart';
+import 'package:faturas/shared/model/selected_payment_option_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,25 +15,25 @@ void main() {
         child: new MaterialApp(
           home: MultiProvider(
             providers: [
-              ChangeNotifierProvider<InstallmentModel>(
-                  create: (_) => InstallmentModel()),
-              ChangeNotifierProvider<InstallmentOptionsModel>(
-                  create: (_) => InstallmentOptionsModel()),
-              ProxyProvider2<InstallmentModel, InstallmentOptionsModel,
+              ChangeNotifierProvider<SelectedPaymentOptionModel>(
+                  create: (_) => SelectedPaymentOptionModel()),
+              ChangeNotifierProvider<PaymentOptionsModel>(
+                  create: (_) => PaymentOptionsModel()),
+              ProxyProvider2<SelectedPaymentOptionModel, PaymentOptionsModel,
                   PaymentOptionsViewModel>(
                 create: (context) => PaymentOptionsViewModel(
-                    installmentModel: context.read<InstallmentModel>(),
-                    installmentOptionsModel:
-                        context.read<InstallmentOptionsModel>()),
-                update: (context, installmentModel, installmentOptionsModel,
-                        notifier) =>
+                    selectedPaymentOptionModel:
+                        context.read<SelectedPaymentOptionModel>(),
+                    paymentOptionsModel: context.read<PaymentOptionsModel>()),
+                update: (context, selectedPaymentOptionModel,
+                        paymentOptionsModel, notifier) =>
                     PaymentOptionsViewModel(
-                  installmentModel: installmentModel,
-                  installmentOptionsModel: installmentOptionsModel,
+                  selectedPaymentOptionModel: selectedPaymentOptionModel,
+                  paymentOptionsModel: paymentOptionsModel,
                 ),
               ),
             ],
-            child: PaymentOptionsScreen(),
+            child: PaymentOptionsWidget(),
           ),
         ),
       );
@@ -51,25 +51,25 @@ void main() {
         child: MaterialApp(
           home: MultiProvider(
             providers: [
-              ChangeNotifierProvider<InstallmentModel>(
-                  create: (_) => InstallmentModel()),
-              ChangeNotifierProvider<InstallmentOptionsModel>(
-                  create: (_) => InstallmentOptionsModel()),
-              ProxyProvider2<InstallmentModel, InstallmentOptionsModel,
+              ChangeNotifierProvider<SelectedPaymentOptionModel>(
+                  create: (_) => SelectedPaymentOptionModel()),
+              ChangeNotifierProvider<PaymentOptionsModel>(
+                  create: (_) => PaymentOptionsModel()),
+              ProxyProvider2<SelectedPaymentOptionModel, PaymentOptionsModel,
                   PaymentOptionsViewModel>(
                 create: (context) => PaymentOptionsViewModel(
-                    installmentModel: context.read<InstallmentModel>(),
-                    installmentOptionsModel:
-                        context.read<InstallmentOptionsModel>()),
-                update: (context, installmentModel, installmentOptionsModel,
-                        notifier) =>
+                    selectedPaymentOptionModel:
+                        context.read<SelectedPaymentOptionModel>(),
+                    paymentOptionsModel: context.read<PaymentOptionsModel>()),
+                update: (context, selectedPaymentOptionModel,
+                        paymentOptionsModel, notifier) =>
                     PaymentOptionsViewModel(
-                  installmentModel: installmentModel,
-                  installmentOptionsModel: installmentOptionsModel,
+                  selectedPaymentOptionModel: selectedPaymentOptionModel,
+                  paymentOptionsModel: paymentOptionsModel,
                 ),
               ),
             ],
-            child: PaymentOptionsScreen(),
+            child: PaymentOptionsWidget(),
           ),
         ),
       );

@@ -1,27 +1,8 @@
-import 'package:faturas/payment-detail/model/installment_options_model.dart';
-import 'package:faturas/payment-detail/view/screens/payment_options.dart';
-import 'package:faturas/payment-detail/view_model/payment_options.dart';
-import 'package:faturas/shared/model/installment_model.dart';
+import 'package:faturas/payment-options/view/screens/payment_options.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MultiProvider(providers: [
-    ChangeNotifierProvider<InstallmentModel>(create: (_) => InstallmentModel()),
-    ChangeNotifierProvider<InstallmentOptionsModel>(
-        create: (_) => InstallmentOptionsModel()),
-    ProxyProvider2<InstallmentModel, InstallmentOptionsModel,
-        PaymentOptionsViewModel>(
-      create: (context) => PaymentOptionsViewModel(
-          installmentModel: context.read<InstallmentModel>(),
-          installmentOptionsModel: context.read<InstallmentOptionsModel>()),
-      update: (context, installmentModel, installmentOptionsModel, notifier) =>
-          PaymentOptionsViewModel(
-        installmentModel: installmentModel,
-        installmentOptionsModel: installmentOptionsModel,
-      ),
-    ),
-  ], child: Home()));
+  runApp(Home());
 }
 
 class Home extends StatelessWidget {

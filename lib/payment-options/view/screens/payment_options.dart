@@ -1,21 +1,51 @@
-import 'package:faturas/payment-detail/view_model/payment_options.dart';
-import 'package:faturas/shared/model/installment.dart';
+import 'package:faturas/payment-options/model/payment_options_model.dart';
+import 'package:faturas/payment-options/view_model/payment_options.dart';
+import 'package:faturas/shared/model/payment_option.dart';
+import 'package:faturas/shared/model/selected_payment_option_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 var nf = NumberFormat.simpleCurrency(locale: 'pt_BR');
 
-class PaymentOptionsScreen extends StatefulWidget {
-  @override
-  _PaymentOptionsScreenState createState() => _PaymentOptionsScreenState();
-}
-
-class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
+class PaymentOptionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final installmentOptions = context.select(
-      (PaymentOptionsViewModel model) => model.installmentOptions,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<SelectedPaymentOptionModel>(
+            create: (_) => SelectedPaymentOptionModel()),
+        ChangeNotifierProvider<PaymentOptionsModel>(
+            create: (_) => PaymentOptionsModel()),
+        ProxyProvider2<SelectedPaymentOptionModel, PaymentOptionsModel,
+            PaymentOptionsViewModel>(
+          create: (context) => PaymentOptionsViewModel(
+              selectedPaymentOptionModel:
+                  context.read<SelectedPaymentOptionModel>(),
+              paymentOptionsModel: context.read<PaymentOptionsModel>()),
+          update: (context, selectedPaymentOptionModel, paymentOptionsModel,
+                  notifier) =>
+              PaymentOptionsViewModel(
+            selectedPaymentOptionModel: selectedPaymentOptionModel,
+            paymentOptionsModel: paymentOptionsModel,
+          ),
+        ),
+      ],
+      child: PaymentOptionsWidget(),
+    );
+  }
+}
+
+class PaymentOptionsWidget extends StatefulWidget {
+  @override
+  _PaymentOptionsWidgetState createState() => _PaymentOptionsWidgetState();
+}
+
+class _PaymentOptionsWidgetState extends State<PaymentOptionsWidget> {
+  @override
+  Widget build(BuildContext context) {
+    final paymentOptions = context.select(
+      (PaymentOptionsViewModel model) => model.paymentOptions,
     );
 
     final invoiceValue = context.select(
@@ -38,9 +68,9 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                           fontWeight: FontWeight.bold, fontSize: 16))),
               Expanded(
                 child: ListView.builder(
-                    itemCount: installmentOptions.length,
+                    itemCount: paymentOptions.length,
                     itemBuilder: (context, indice) {
-                      final parcela = installmentOptions[indice];
+                      final parcela = paymentOptions[indice];
                       return PaymentDetailTile(parcela);
                     }),
               ),
@@ -75,13 +105,15 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                             Consumer<PaymentOptionsViewModel>(
                               builder: (_, paymentDetailViewModel, __) {
                                 var text = '';
-                                var selectedInstallment =
-                                    paymentDetailViewModel.selectedInstallment;
+                                var selectedPaymentOption =
+                                    paymentDetailViewModel
+                                        .selectedPaymentOption;
 
-                                if (selectedInstallment != null) {
-                                  text = nf.format((selectedInstallment.number *
-                                          selectedInstallment.value) -
-                                      invoiceValue);
+                                if (selectedPaymentOption != null) {
+                                  text = nf.format(
+                                      (selectedPaymentOption.number *
+                                              selectedPaymentOption.value) -
+                                          invoiceValue);
                                 }
 
                                 return Text(
@@ -125,7 +157,7 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
 }
 
 class PaymentDetailTile extends StatelessWidget {
-  final Installment _payment;
+  final PaymentOption _payment;
 
   PaymentDetailTile(this._payment);
 
@@ -137,7 +169,7 @@ class PaymentDetailTile extends StatelessWidget {
         Provider.of<PaymentOptionsViewModel>(context);
 
     return Card(
-        child: RadioListTile<Installment>(
+        child: RadioListTile<PaymentOption>(
       title: Row(
         children: [
           Text('${_payment.number} x ${nf.format(_payment.value)}', key: key),
@@ -146,9 +178,9 @@ class PaymentDetailTile extends StatelessWidget {
         ],
       ),
       value: _payment,
-      groupValue: paymentDetailViewModel.selectedInstallment,
-      onChanged: (Installment? value) {
-        paymentDetailViewModel.selectedInstallment = value;
+      groupValue: paymentDetailViewModel.selectedPaymentOption,
+      onChanged: (PaymentOption? value) {
+        paymentDetailViewModel.selectedPaymentOption = value;
       },
     ));
   }
