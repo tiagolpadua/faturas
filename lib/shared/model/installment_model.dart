@@ -1,5 +1,5 @@
-import 'package:faturas/model/installment.dart';
 import 'package:faturas/payment-detail/model/installment_options_model.dart';
+import 'package:faturas/shared/model/installment.dart';
 import 'package:flutter/cupertino.dart';
 
 class InstallmentModel extends ChangeNotifier {

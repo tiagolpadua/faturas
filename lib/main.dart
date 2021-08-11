@@ -1,7 +1,7 @@
-import 'package:faturas/model/installment_model.dart';
 import 'package:faturas/payment-detail/model/installment_options_model.dart';
 import 'package:faturas/payment-detail/view/screens/payment_options.dart';
 import 'package:faturas/payment-detail/view_model/payment_options.dart';
+import 'package:faturas/shared/model/installment_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

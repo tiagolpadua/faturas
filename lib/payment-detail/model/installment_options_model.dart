@@ -1,4 +1,4 @@
-import 'package:faturas/model/installment.dart';
+import 'package:faturas/shared/model/installment.dart';
 import 'package:flutter/cupertino.dart';
 
 class InstallmentOptionsModel extends ChangeNotifier {
