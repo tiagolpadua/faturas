@@ -43,11 +43,12 @@ class PaymentOptionsWidget extends StatefulWidget {
 
 class _PaymentOptionsWidgetState extends State<PaymentOptionsWidget> {
   @override
-  Widget build(BuildContext context) {
-    final paymentOptions = context.select(
-      (PaymentOptionsViewModel model) => model.paymentOptions,
-    );
+  void initState() {
+    super.initState();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     final invoiceValue = context.select(
       (PaymentOptionsViewModel model) => model.invoiceValue,
     );
@@ -62,16 +63,38 @@ class _PaymentOptionsWidgetState extends State<PaymentOptionsWidget> {
           child: Column(
             children: [
               Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text("Escolha o número de parcelas:",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16))),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Escolha o número de parcelas:",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
               Expanded(
-                child: ListView.builder(
-                    itemCount: paymentOptions.length,
-                    itemBuilder: (context, indice) {
-                      final parcela = paymentOptions[indice];
-                      return PaymentDetailTile(parcela);
+                child: FutureBuilder<List<PaymentOption>>(
+                    future: context.select(
+                      (PaymentOptionsViewModel model) =>
+                          model.getPaymentOptions(),
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return ListView.builder(
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (context, indice) {
+                              final parcela = snapshot.data![indice];
+                              return PaymentDetailTile(parcela);
+                            });
+                      } else if (snapshot.hasError) {
+                        return Text('${snapshot.error}');
+                      }
+
+                      return Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 100),
+                            child: const CircularProgressIndicator(),
+                          ),
+                        ],
+                      );
                     }),
               ),
               Divider(),

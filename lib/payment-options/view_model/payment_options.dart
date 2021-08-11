@@ -14,8 +14,8 @@ class PaymentOptionsViewModel {
       : _selectedPaymentOptionModel = selectedPaymentOptionModel,
         _paymentOptionsModel = paymentOptionsModel;
 
-  List<PaymentOption> get paymentOptions {
-    return _paymentOptionsModel.paymentOptions;
+  Future<List<PaymentOption>> getPaymentOptions() {
+    return _paymentOptionsModel.getPaymentOptions();
   }
 
   PaymentOption? get selectedPaymentOption {
