@@ -1,3 +1,4 @@
+import 'package:faturas/credit-card-details/view/screen/credit_card_details.dart';
 import 'package:faturas/payment-options/model/payment_options_model.dart';
 import 'package:faturas/payment-options/view_model/payment_options.dart';
 import 'package:faturas/shared/model/payment_option.dart';
@@ -166,7 +167,10 @@ class _PaymentOptionsWidgetState extends State<PaymentOptionsWidget> {
                   Spacer(),
                   ElevatedButton(
                       onPressed: () {
-                        debugPrint("Continuar...");
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return CreditCardDetailsScreen();
+                        }));
                       },
                       child: Text("Continuar"))
                 ],
