@@ -43,11 +43,6 @@ class PaymentOptionsWidget extends StatefulWidget {
 
 class _PaymentOptionsWidgetState extends State<PaymentOptionsWidget> {
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final invoiceValue = context.select(
       (InvoiceModel model) => model.value,

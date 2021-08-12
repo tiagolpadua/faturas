@@ -1,9 +1,84 @@
 import 'package:faturas/confirmation/view_model/confirmation.dart';
 import 'package:faturas/shared/model/credit_card/user_credit_card_model.dart';
+import 'package:faturas/shared/model/invoice_model.dart';
 import 'package:faturas/shared/model/payment_option/selected_payment_option_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
+var nf = NumberFormat.simpleCurrency(locale: 'pt_BR');
+
+Future<String> processPayment(String cvv) async =>
+    await Future.delayed(Duration(seconds: 2), () {
+      if (cvv != '111') {
+        return 'error';
+      }
+      return 'ok';
+    });
+
+showProcessingDialog(BuildContext context, String cvv) {
+  // set up the button
+  Widget okButton = TextButton(
+    child: Text("OK"),
+    onPressed: () {
+      Navigator.of(context).pop();
+    },
+  );
+
+  Widget reviewButton = TextButton(
+    child: Text("Revisar dados"),
+    onPressed: () {
+      Navigator.of(context).pop();
+    },
+  );
+
+  // set up the AlertDialog
+  AlertDialog processingDialog = AlertDialog(
+    title: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CircularProgressIndicator(),
+        Text("Confirmando seu pagamento"),
+      ],
+    ),
+    content: Text(
+        "Estamos confirmando a stansação co seu banco e isso pode levar alguns segundos."),
+  );
+
+  AlertDialog dialogOk = AlertDialog(
+    title: Text("Cobrança Efetuada"),
+    content: Text("Tudo certo, seu pagamento foi efetuado!"),
+    actions: [okButton],
+  );
+
+  AlertDialog dialogError = AlertDialog(
+    title: Text("Falha na cobrança"),
+    content: Text(
+        "Algo deu errado no processamento do seu cartão. Verifique se os dados do cartão estão corretos."),
+    actions: [reviewButton],
+  );
+
+  // show the dialog
+  showDialog(
+    barrierDismissible: false,
+    context: context,
+    builder: (BuildContext context) {
+      return FutureBuilder<String>(
+          future: processPayment(cvv),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              if (snapshot.data == 'ok') {
+                return dialogOk;
+              } else {
+                return dialogError;
+              }
+            }
+            return processingDialog;
+          });
+    },
+  );
+}
 
 class ConfirmationScreen extends StatelessWidget {
   @override
@@ -34,13 +109,26 @@ class ConfirmationWidget extends StatefulWidget {
 class _ConfirmationWidgetState extends State<ConfirmationWidget> {
   @override
   Widget build(BuildContext context) {
+    final invoiceValue = context.select(
+      (InvoiceModel model) => model.value,
+    );
+
+    final userCreditCard = context.select(
+      (ConfirmationViewModel model) => model.userCreditCard,
+    );
+
+    final txtInvoiceValue = nf.format(invoiceValue);
+
     final selectedPaymentOption = context.select(
       (ConfirmationViewModel model) => model.selectedPaymentOption,
     );
 
-    // final userCreditCard = context.select(
-    //   (ConfirmationViewModel model) => model.userCreditCard,
-    // );
+    final txtFee = nf.format(selectedPaymentOption!.total - invoiceValue);
+
+    final txtTotal = nf.format(selectedPaymentOption.total);
+
+    final txtYouPay =
+        '${selectedPaymentOption.number} x ${nf.format(selectedPaymentOption.value)}';
 
     return Scaffold(
       appBar: AppBar(
@@ -66,7 +154,7 @@ class _ConfirmationWidgetState extends State<ConfirmationWidget> {
                               style:
                                   TextStyle(color: Colors.grey, fontSize: 16)),
                           Spacer(),
-                          Text("${selectedPaymentOption?.total}",
+                          Text(txtInvoiceValue,
                               style:
                                   TextStyle(color: Colors.grey, fontSize: 16))
                         ],
@@ -80,7 +168,7 @@ class _ConfirmationWidgetState extends State<ConfirmationWidget> {
                               style:
                                   TextStyle(color: Colors.grey, fontSize: 16)),
                           Spacer(),
-                          Text("xxx",
+                          Text(txtFee,
                               style:
                                   TextStyle(color: Colors.grey, fontSize: 16))
                         ],
@@ -92,7 +180,7 @@ class _ConfirmationWidgetState extends State<ConfirmationWidget> {
                         children: [
                           Text("Total", style: TextStyle(fontSize: 16)),
                           Spacer(),
-                          Text("xxx", style: TextStyle(fontSize: 16))
+                          Text(txtTotal, style: TextStyle(fontSize: 16))
                         ],
                       ),
                     ),
@@ -105,7 +193,7 @@ class _ConfirmationWidgetState extends State<ConfirmationWidget> {
                               style: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 16)),
                           Spacer(),
-                          Text("xxx",
+                          Text(txtYouPay,
                               style: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 20))
                         ],
@@ -136,7 +224,7 @@ class _ConfirmationWidgetState extends State<ConfirmationWidget> {
                 Spacer(),
                 ElevatedButton(
                     onPressed: () {
-                      debugPrint("Pagar!");
+                      showProcessingDialog(context, userCreditCard!.cvv);
                     },
                     child: Text("Pagar Fatura"))
               ],

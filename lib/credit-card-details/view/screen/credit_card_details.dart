@@ -10,8 +10,6 @@ class CreditCardDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(providers: [
-      ChangeNotifierProvider<UserCreditCardModel>(
-          create: (_) => UserCreditCardModel()),
       ProxyProvider<UserCreditCardModel, CreditCartDetailsViewModel>(
         create: (context) => CreditCartDetailsViewModel(
             userCreditCardModel: context.read<UserCreditCardModel>()),
