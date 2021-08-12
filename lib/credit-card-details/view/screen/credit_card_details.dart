@@ -1,10 +1,23 @@
+import 'package:faturas/credit-card-details/view_model/credit_card_details.dart';
+import 'package:faturas/shared/model/credit_card/credit_card.dart';
+import 'package:faturas/shared/model/credit_card/user_credit_card_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CreditCardDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return CreditCardDetailsWidget();
+    return MultiProvider(providers: [
+      ProxyProvider<UserCreditCardModel, CreditCartDetailsViewModel>(
+        create: (context) => CreditCartDetailsViewModel(
+            userCreditCardModel: context.read<UserCreditCardModel>()),
+        update: (context, userCreditCardModel, notifier) =>
+            CreditCartDetailsViewModel(
+          userCreditCardModel: userCreditCardModel,
+        ),
+      ),
+    ], child: CreditCardDetailsWidget());
   }
 }
 
@@ -17,11 +30,25 @@ class CreditCardDetailsWidget extends StatefulWidget {
 class _CreditCardDetailsWidgetState extends State<CreditCardDetailsWidget> {
   final _formKey = new GlobalKey<FormState>();
 
+  final _numberController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _expirationController = TextEditingController();
+  final _cvvController = TextEditingController();
+
   String? _notEmpty(String? text) {
     if (text == null || text.isEmpty) {
       return 'Deve ser preenchido';
     }
     return null;
+  }
+
+  @override
+  void dispose() {
+    _numberController.dispose();
+    _nameController.dispose();
+    _expirationController.dispose();
+    _cvvController.dispose();
+    super.dispose();
   }
 
   @override
@@ -41,6 +68,7 @@ class _CreditCardDetailsWidgetState extends State<CreditCardDetailsWidget> {
                     style:
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 TextFormField(
+                  controller: _numberController,
                   maxLength: 16,
                   decoration: InputDecoration(border: OutlineInputBorder()),
                   keyboardType: TextInputType.number,
@@ -50,6 +78,7 @@ class _CreditCardDetailsWidgetState extends State<CreditCardDetailsWidget> {
                     style:
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 TextFormField(
+                  controller: _nameController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                   ),
@@ -67,6 +96,7 @@ class _CreditCardDetailsWidgetState extends State<CreditCardDetailsWidget> {
                         SizedBox(
                           width: MediaQuery.of(context).size.width * 0.4,
                           child: TextFormField(
+                            controller: _expirationController,
                             maxLength: 4,
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
@@ -88,6 +118,7 @@ class _CreditCardDetailsWidgetState extends State<CreditCardDetailsWidget> {
                         SizedBox(
                           width: MediaQuery.of(context).size.width * 0.4,
                           child: TextFormField(
+                            controller: _cvvController,
                             maxLength: 3,
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
@@ -122,11 +153,21 @@ class _CreditCardDetailsWidgetState extends State<CreditCardDetailsWidget> {
                     ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            // If the form is valid, display a snackbar. In the real world,
-                            // you'd often call a server or save the information in a database.
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Processing Data')),
+                            final creditCartDetailsViewModel = context.select(
+                              (CreditCartDetailsViewModel model) => model,
                             );
+
+                            creditCartDetailsViewModel.userCreditCard =
+                                CreditCard(
+                                    _nameController.text,
+                                    _nameController.text,
+                                    _expirationController.text,
+                                    _cvvController.text);
+
+                            // Navigator.push(context,
+                            //     MaterialPageRoute(builder: (context) {
+                            //   return CreditCardDetailsScreen();
+                            // }));
                           }
                         },
                         child: Text("Continuar"))

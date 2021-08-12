@@ -1,4 +1,4 @@
-import 'package:faturas/shared/model/payment_option.dart';
+import 'package:faturas/shared/model/payment_option/payment_option.dart';
 import 'package:flutter/cupertino.dart';
 
 class SelectedPaymentOptionModel extends ChangeNotifier {

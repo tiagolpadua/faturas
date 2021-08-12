@@ -1,6 +1,6 @@
 import 'package:faturas/payment-options/model/payment_options_model.dart';
-import 'package:faturas/shared/model/payment_option.dart';
-import 'package:faturas/shared/model/selected_payment_option_model.dart';
+import 'package:faturas/shared/model/payment_option/payment_option.dart';
+import 'package:faturas/shared/model/payment_option/selected_payment_option_model.dart';
 
 class PaymentOptionsViewModel {
   final double invoiceValue = 3025.49;
