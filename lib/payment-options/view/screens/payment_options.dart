@@ -1,6 +1,7 @@
 import 'package:faturas/credit-card-details/view/screen/credit_card_details.dart';
 import 'package:faturas/payment-options/model/payment_options_model.dart';
 import 'package:faturas/payment-options/view_model/payment_options.dart';
+import 'package:faturas/shared/model/invoice_model.dart';
 import 'package:faturas/shared/model/payment_option/payment_option.dart';
 import 'package:faturas/shared/model/payment_option/selected_payment_option_model.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +15,6 @@ class PaymentOptionsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<SelectedPaymentOptionModel>(
-            create: (_) => SelectedPaymentOptionModel()),
         ChangeNotifierProvider<PaymentOptionsModel>(
             create: (_) => PaymentOptionsModel()),
         ProxyProvider2<SelectedPaymentOptionModel, PaymentOptionsModel,
@@ -51,7 +50,7 @@ class _PaymentOptionsWidgetState extends State<PaymentOptionsWidget> {
   @override
   Widget build(BuildContext context) {
     final invoiceValue = context.select(
-      (PaymentOptionsViewModel model) => model.invoiceValue,
+      (InvoiceModel model) => model.value,
     );
 
     return Scaffold(

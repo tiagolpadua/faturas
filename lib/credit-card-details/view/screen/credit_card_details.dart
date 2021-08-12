@@ -1,3 +1,4 @@
+import 'package:faturas/confirmation/view/screens/confirmation.dart';
 import 'package:faturas/credit-card-details/view_model/credit_card_details.dart';
 import 'package:faturas/shared/model/credit_card/credit_card.dart';
 import 'package:faturas/shared/model/credit_card/user_credit_card_model.dart';
@@ -9,6 +10,8 @@ class CreditCardDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(providers: [
+      ChangeNotifierProvider<UserCreditCardModel>(
+          create: (_) => UserCreditCardModel()),
       ProxyProvider<UserCreditCardModel, CreditCartDetailsViewModel>(
         create: (context) => CreditCartDetailsViewModel(
             userCreditCardModel: context.read<UserCreditCardModel>()),
@@ -53,6 +56,10 @@ class _CreditCardDetailsWidgetState extends State<CreditCardDetailsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final creditCartDetailsViewModel = context.select(
+      (CreditCartDetailsViewModel model) => model,
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pagamento da fatura'),
@@ -153,10 +160,6 @@ class _CreditCardDetailsWidgetState extends State<CreditCardDetailsWidget> {
                     ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            final creditCartDetailsViewModel = context.select(
-                              (CreditCartDetailsViewModel model) => model,
-                            );
-
                             creditCartDetailsViewModel.userCreditCard =
                                 CreditCard(
                                     _nameController.text,
@@ -164,10 +167,10 @@ class _CreditCardDetailsWidgetState extends State<CreditCardDetailsWidget> {
                                     _expirationController.text,
                                     _cvvController.text);
 
-                            // Navigator.push(context,
-                            //     MaterialPageRoute(builder: (context) {
-                            //   return CreditCardDetailsScreen();
-                            // }));
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return ConfirmationScreen();
+                            }));
                           }
                         },
                         child: Text("Continuar"))
