@@ -1,51 +1,33 @@
 import 'package:faturas/credit-card-details/view/screen/credit_card_details.dart';
-import 'package:faturas/payment-options/model/payment_options_model.dart';
 import 'package:faturas/payment-options/view_model/payment_options.dart';
-import 'package:faturas/shared/model/invoice_model.dart';
 import 'package:faturas/shared/model/payment_option/payment_option.dart';
-import 'package:faturas/shared/model/payment_option/selected_payment_option_model.dart';
+import 'package:faturas/shared/model/payment_option/payment_options_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-var nf = NumberFormat.simpleCurrency(locale: 'pt_BR');
-
 class PaymentOptionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<PaymentOptionsModel>(
-            create: (_) => PaymentOptionsModel()),
-        ProxyProvider2<SelectedPaymentOptionModel, PaymentOptionsModel,
-            PaymentOptionsViewModel>(
-          create: (context) => PaymentOptionsViewModel(
-              selectedPaymentOptionModel:
-                  context.read<SelectedPaymentOptionModel>(),
-              paymentOptionsModel: context.read<PaymentOptionsModel>()),
-          update: (context, selectedPaymentOptionModel, paymentOptionsModel,
-                  notifier) =>
-              PaymentOptionsViewModel(
-            selectedPaymentOptionModel: selectedPaymentOptionModel,
-            paymentOptionsModel: paymentOptionsModel,
-          ),
-        ),
-      ],
+    return ProxyProvider<PaymentOptionsModel, PaymentOptionsViewModel>(
+      create: (context) => PaymentOptionsViewModel(
+          paymentOptionsModel: context.read<PaymentOptionsModel>()),
+      update: (context, paymentOptionsModel, notifier) =>
+          PaymentOptionsViewModel(
+        paymentOptionsModel: paymentOptionsModel,
+      ),
       child: PaymentOptionsWidget(),
     );
   }
 }
 
-class PaymentOptionsWidget extends StatefulWidget {
-  @override
-  _PaymentOptionsWidgetState createState() => _PaymentOptionsWidgetState();
-}
+class PaymentOptionsWidget extends StatelessWidget {
+  final nf = NumberFormat.simpleCurrency(locale: 'pt_BR');
 
-class _PaymentOptionsWidgetState extends State<PaymentOptionsWidget> {
   @override
   Widget build(BuildContext context) {
-    final invoiceValue = context.select(
-      (InvoiceModel model) => model.value,
+    final vm = context.select(
+      (PaymentOptionsViewModel vm) => vm,
     );
 
     return Scaffold(
@@ -58,12 +40,10 @@ class _PaymentOptionsWidgetState extends State<PaymentOptionsWidget> {
           child: Column(
             children: [
               Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Escolha o número de parcelas:",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ),
+                  alignment: Alignment.centerLeft,
+                  child: Text("Escolha o número de parcelas:",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 16))),
               Expanded(
                 child: FutureBuilder<List<PaymentOption>>(
                     future: context.select(
@@ -72,11 +52,12 @@ class _PaymentOptionsWidgetState extends State<PaymentOptionsWidget> {
                     ),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
+                        final paymentOptions = snapshot.data!;
                         return ListView.builder(
-                            itemCount: snapshot.data!.length,
+                            itemCount: paymentOptions.length,
                             itemBuilder: (context, indice) {
-                              final parcela = snapshot.data![indice];
-                              return PaymentDetailTile(parcela);
+                              final paymentOption = paymentOptions[indice];
+                              return PaymentOptionTile(paymentOption);
                             });
                       } else if (snapshot.hasError) {
                         return Text('${snapshot.error}');
@@ -102,13 +83,17 @@ class _PaymentOptionsWidgetState extends State<PaymentOptionsWidget> {
                         padding: const EdgeInsets.only(top: 20.0),
                         child: Row(
                           children: [
-                            Text("Fatura de junho",
-                                style: TextStyle(
-                                    color: Colors.grey, fontSize: 16)),
+                            Text(
+                              "Fatura de junho",
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 16),
+                            ),
                             Spacer(),
-                            Text("${nf.format(invoiceValue)}",
-                                style: TextStyle(
-                                    color: Colors.grey, fontSize: 16)),
+                            Text(
+                              "${nf.format(vm.invoiceValue)}",
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 16),
+                            ),
                           ],
                         ),
                       ),
@@ -116,31 +101,17 @@ class _PaymentOptionsWidgetState extends State<PaymentOptionsWidget> {
                         padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
                         child: Row(
                           children: [
-                            Text("Taxa da operação",
-                                style: TextStyle(
-                                    color: Colors.grey, fontSize: 16)),
+                            Text(
+                              "Taxa da operação",
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 16),
+                            ),
                             Spacer(),
-                            Consumer<PaymentOptionsViewModel>(
-                              builder: (_, paymentDetailViewModel, __) {
-                                var text = '';
-                                var selectedPaymentOption =
-                                    paymentDetailViewModel
-                                        .selectedPaymentOption;
-
-                                if (selectedPaymentOption != null) {
-                                  text = nf.format(
-                                      (selectedPaymentOption.number *
-                                              selectedPaymentOption.value) -
-                                          invoiceValue);
-                                }
-
-                                return Text(
-                                  text,
-                                  key: Key("tax"),
-                                  style: TextStyle(
-                                      color: Colors.grey, fontSize: 16),
-                                );
-                              },
+                            Text(
+                              "${nf.format(vm.operationTax)}",
+                              key: Key("tax"),
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 16),
                             ),
                           ],
                         ),
@@ -177,32 +148,39 @@ class _PaymentOptionsWidgetState extends State<PaymentOptionsWidget> {
   }
 }
 
-class PaymentDetailTile extends StatelessWidget {
+class PaymentOptionTile extends StatelessWidget {
   final PaymentOption _payment;
 
-  PaymentDetailTile(this._payment);
+  PaymentOptionTile(this._payment);
 
   @override
   Widget build(BuildContext context) {
+    final vm = context.select(
+      (PaymentOptionsViewModel vm) => vm,
+    );
+
     var key = Key('rlt_${_payment.number}');
 
-    final paymentDetailViewModel =
-        Provider.of<PaymentOptionsViewModel>(context);
+    var nf = NumberFormat.simpleCurrency(locale: 'pt_BR');
 
     return Card(
-        child: RadioListTile<PaymentOption>(
-      title: Row(
-        children: [
-          Text('${_payment.number} x ${nf.format(_payment.value)}', key: key),
-          Spacer(),
-          Text('${nf.format(_payment.total)}'),
-        ],
+      child: RadioListTile<PaymentOption>(
+        title: Row(
+          children: [
+            Text('${_payment.number} x ${nf.format(_payment.value)}', key: key),
+            Spacer(),
+            Text('${nf.format(_payment.total)}'),
+          ],
+        ),
+        value: _payment,
+        groupValue: vm.selectedPaymentOption,
+        onChanged: (PaymentOption? value) {
+          if (value == null) {
+            return;
+          }
+          vm.selectedPaymentOption = value;
+        },
       ),
-      value: _payment,
-      groupValue: paymentDetailViewModel.selectedPaymentOption,
-      onChanged: (PaymentOption? value) {
-        paymentDetailViewModel.selectedPaymentOption = value;
-      },
-    ));
+    );
   }
 }

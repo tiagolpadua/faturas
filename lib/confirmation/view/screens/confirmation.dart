@@ -1,7 +1,6 @@
 import 'package:faturas/confirmation/view_model/confirmation.dart';
 import 'package:faturas/shared/model/credit_card/user_credit_card_model.dart';
-import 'package:faturas/shared/model/invoice_model.dart';
-import 'package:faturas/shared/model/payment_option/selected_payment_option_model.dart';
+import 'package:faturas/shared/model/payment_option/payment_options_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -18,7 +17,6 @@ Future<String> processPayment(String cvv) async =>
     });
 
 showProcessingDialog(BuildContext context, String cvv) {
-  // set up the button
   Widget okButton = TextButton(
     child: Text("OK"),
     onPressed: () {
@@ -84,16 +82,14 @@ class ConfirmationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(providers: [
-      ProxyProvider2<SelectedPaymentOptionModel, UserCreditCardModel,
+      ProxyProvider2<PaymentOptionsModel, UserCreditCardModel,
           ConfirmationViewModel>(
         create: (context) => ConfirmationViewModel(
-            selectedPaymentOptionModel:
-                context.read<SelectedPaymentOptionModel>(),
+            paymentOptionsModel: context.read<PaymentOptionsModel>(),
             userCreditCardModel: context.read<UserCreditCardModel>()),
-        update: (context, selectedPaymentOptionModel, userCreditCardModel,
-                notifier) =>
+        update: (context, paymentOptionsModel, userCreditCardModel, notifier) =>
             ConfirmationViewModel(
-          selectedPaymentOptionModel: selectedPaymentOptionModel,
+          paymentOptionsModel: paymentOptionsModel,
           userCreditCardModel: userCreditCardModel,
         ),
       ),
@@ -109,26 +105,18 @@ class ConfirmationWidget extends StatefulWidget {
 class _ConfirmationWidgetState extends State<ConfirmationWidget> {
   @override
   Widget build(BuildContext context) {
-    final invoiceValue = context.select(
-      (InvoiceModel model) => model.value,
+    final vm = context.select(
+      (ConfirmationViewModel model) => model,
     );
 
-    final userCreditCard = context.select(
-      (ConfirmationViewModel model) => model.userCreditCard,
-    );
+    final txtFee = nf.format(vm.selectedPaymentOption!.total - vm.invoiceValue);
 
-    final txtInvoiceValue = nf.format(invoiceValue);
-
-    final selectedPaymentOption = context.select(
-      (ConfirmationViewModel model) => model.selectedPaymentOption,
-    );
-
-    final txtFee = nf.format(selectedPaymentOption!.total - invoiceValue);
-
-    final txtTotal = nf.format(selectedPaymentOption.total);
+    final txtTotal = nf.format(vm.selectedPaymentOption!.total);
 
     final txtYouPay =
-        '${selectedPaymentOption.number} x ${nf.format(selectedPaymentOption.value)}';
+        '${vm.selectedPaymentOption!.number} x ${nf.format(vm.selectedPaymentOption!.value)}';
+
+    final txtInvoiceValue = nf.format(vm.invoiceValue);
 
     return Scaffold(
       appBar: AppBar(
@@ -224,7 +212,7 @@ class _ConfirmationWidgetState extends State<ConfirmationWidget> {
                 Spacer(),
                 ElevatedButton(
                     onPressed: () {
-                      showProcessingDialog(context, userCreditCard!.cvv);
+                      showProcessingDialog(context, vm.userCreditCard!.cvv);
                     },
                     child: Text("Pagar Fatura"))
               ],
