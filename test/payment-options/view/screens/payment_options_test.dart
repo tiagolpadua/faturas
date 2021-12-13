@@ -1,5 +1,6 @@
 import 'package:faturas/payment-options/repository/rest/payment_options_rest_service.dart';
 import 'package:faturas/payment-options/view/screens/payment_options.dart';
+import 'package:faturas/shared/model/credit_card/user_credit_card_model.dart';
 import 'package:faturas/shared/model/payment_option/payment_option.dart';
 import 'package:faturas/shared/model/payment_option/payment_options_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -62,6 +63,40 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byKey(Key("tax")).toString().contains("234,52"), true);
+    });
+
+    testWidgets('User can navigate to card details screen', (tester) async {
+      // Widget paymentOptionsScreenWidget =
+      // ChangeNotifierProvider<PaymentOptionsModel>(
+      //   create: (_) => PaymentOptionsModel(),
+      //   child: MaterialApp(home: PaymentOptionsScreen()),
+      // );
+
+      Widget paymentOptionsScreenWidget = MultiProvider(
+        providers: [
+          ChangeNotifierProvider<PaymentOptionsModel>(
+              create: (_) => PaymentOptionsModel()),
+          ChangeNotifierProvider<UserCreditCardModel>(
+              create: (_) => UserCreditCardModel()),
+        ],
+        child: MaterialApp(
+          home: PaymentOptionsScreen(),
+        ),
+      );
+
+      await tester.pumpWidget(paymentOptionsScreenWidget);
+
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(Key('rlt_3')));
+
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(Key('po_continue')));
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Número do Cartão'), findsOneWidget);
     });
   });
 }

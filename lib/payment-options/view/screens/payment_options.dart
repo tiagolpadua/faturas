@@ -137,7 +137,7 @@ class PaymentOptionsWidget extends StatelessWidget {
                           return CreditCardDetailsScreen();
                         }));
                       },
-                      child: Text("Continuar"))
+                      child: Text("Continuar", key: Key("po_continue"),))
                 ],
               )
             ],
